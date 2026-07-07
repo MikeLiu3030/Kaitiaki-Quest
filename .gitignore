@@ -1,0 +1,19 @@
+#System file
+.DS_Store
+Thumbs.db
+
+# Backend(.net)
+**/bin/
+**/obj/
+**/appsettings.Development.json
+**/appsettings.Production.json
+
+# Frontend
+frontend/node_moudles/
+frontend/dist/
+frontend/.env.local
+
+# IDE
+.vs
+.idea/
+
