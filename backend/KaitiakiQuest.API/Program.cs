@@ -3,19 +3,24 @@ using Microsoft.AspNetCore.Identity;
 using KaitiakiQuest.API.Data;
 using KaitiakiQuest.API.Models;
 using Scalar.AspNetCore;
+using KaitiakiQuest.API.Services.Interfaces;
+using KaitiakiQuest.API.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Register DbContext (using SQL Server)
+// Register DbContext (using SQL Server)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Register Identity（using ApplicationUser adn IdentityRole）
+// Register Identity（using ApplicationUser adn IdentityRole）
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// 3. Register Controllers
+// Register Services
+builder.Services.AddScoped<IEcoMissionService, EcoMissionService>();
+
+// Register Controllers
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
