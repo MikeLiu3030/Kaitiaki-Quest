@@ -24,6 +24,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddScoped<IEcoMissionService, EcoMissionService>();
 builder.Services.AddScoped<IUserMissionService, UserMissionService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 // Register Controllers
 builder.Services.AddControllers();
