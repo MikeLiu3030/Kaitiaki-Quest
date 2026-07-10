@@ -138,25 +138,33 @@ namespace KaitiakiQuest.API.Services.Implementations
 
             if (userMission.Status != MissionStatus.Pending)
                 return ServiceResult<UserMissionResponseDto>.Failure("Mission already completed or failed");
-
+            //  Update task status
             userMission.Status = MissionStatus.Completed;
             userMission.CompletedDate = DateTime.UtcNow;
             if (dto != null && !string.IsNullOrEmpty(dto.EvidenceImageUrl))
                 userMission.EvidenceImageUrl = dto.EvidenceImageUrl;
 
+            // Call game engine to calculate points.
             userMission.EarnedXP = await _gamificationService.ProcessMissionCompletion(userId, userMission);
 
+            // Update user information
             var user = await _context.Users.FindAsync(userId);
             if (user != null)
             {
+                // Accumulate the total score
                 user.TotalXP += userMission.EarnedXP;
+                // Update level
                 user.Level = user.TotalXP / 100 + 1;
+                // Check Streak
                 await _gamificationService.UpdateStreak(userId);
+
+                // Check and award new badges.
                 await _gamificationService.CheckAndAwardBadges(userId);
             }
 
             await _context.SaveChangesAsync();
 
+            // Create response
             var response = new UserMissionResponseDto
             {
                 Id = userMission.Id,
