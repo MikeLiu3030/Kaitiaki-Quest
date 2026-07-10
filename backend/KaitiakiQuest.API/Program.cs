@@ -1,4 +1,5 @@
 using KaitiakiQuest.API.Data;
+using KaitiakiQuest.API.Hubs;
 using KaitiakiQuest.API.Models;
 using KaitiakiQuest.API.Services.Implementations;
 using KaitiakiQuest.API.Services.Interfaces;
@@ -91,6 +92,7 @@ app.UseAuthentication();
 app.UseAuthorization(); 
 
 app.MapControllers();
+app.MapHub<TeamHub>("/teamHub"); // Add the SignalR Hub mapping
 
 // Add seed data
 using (var scope = app.Services.CreateScope())
