@@ -49,7 +49,32 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyForDevelopmentOnly!"))
     };
+
+    // Read the Token from the Authorization Header
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
+    };
+
 });
+
+// Register SignalR
+builder.Services.AddSignalR();
+
+// Register memory cache
+builder.Services.AddMemoryCache();
+
+
+
 
 var app = builder.Build();
 
