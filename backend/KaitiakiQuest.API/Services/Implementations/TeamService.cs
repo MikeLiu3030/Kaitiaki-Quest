@@ -339,7 +339,7 @@ namespace KaitiakiQuest.API.Services.Implementations
         {
             // Update TotalTeamXP property dirctly.
             var teamId = await _context.Users
-                .Where(u => u.Id = userId && u.TeamId != null)
+                .Where(u => u.Id == userId && u.TeamId != null)
                 .Select(u => u.TeamId)
                 .FirstOrDefaultAsync();
 
@@ -356,10 +356,48 @@ namespace KaitiakiQuest.API.Services.Implementations
             return team.TotalTeamXP;
         }
 
+        //============================
+        //Get TeamLeaderboard
+        //============================
+        public async Task<ServiceResult<List<TeamLeaderboardDto>>> GetTeamLeaderboardAsync()
+        {
+            const string cacheKey = "TeamLeaderboard";
 
+            if (_cache.TryGetValue(cacheKey, out List<TeamLeaderboardDto>? cached) && cached != null)
+            {
+                _logger.LogInformation("Team leaderboard returned from cache");
+                return ServiceResult<List<TeamLeaderboardDto>>.Success(cached);
+            }
 
+            _logger.LogInformation("Team leaderboard cache miss, querying database");
 
+            var teams = await _context.Teams
+                .Where(t => t.TotalTeamXP > 0 || t.Members.Any())
+                .OrderByDescending(t => t.TotalTeamXP)
+                .Select(t => new TeamLeaderboardDto
+                {
+                    TeamId = t.Id,
+                    TeamName = t.Name,
+                    TotalTeamXP = t.TotalTeamXP,
+                    MemberCount = t.Members.Count,
+                    TeamLeaderName = t.CreatedByUser != null ? t.CreatedByUser.UserName : "Unknown"
+                })
+                .ToListAsync();
 
+            // add ranking
+            for (int i = 0; i < teams.Count; i++)
+            {
+                teams[i].Rank = i + 1;
+            }
+
+            var options = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+
+            _cache.Set(cacheKey, teams, options);
+
+            return ServiceResult<List<TeamLeaderboardDto>>.Success(teams);
+        }
     }
 
 }
