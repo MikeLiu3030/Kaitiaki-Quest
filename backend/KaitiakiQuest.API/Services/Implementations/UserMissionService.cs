@@ -3,6 +3,7 @@ using KaitiakiQuest.API.Data;
 using KaitiakiQuest.API.Models;
 using KaitiakiQuest.API.DTOs;
 using KaitiakiQuest.API.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace KaitiakiQuest.API.Services.Implementations
 {
@@ -10,11 +11,19 @@ namespace KaitiakiQuest.API.Services.Implementations
     {
         private readonly ApplicationDbContext _context;
         private readonly IGamificationService _gamificationService;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<UserMissionService> _logger;
 
-        public UserMissionService(ApplicationDbContext context, IGamificationService gamificationService)
+        public UserMissionService(
+            ApplicationDbContext context, 
+            IGamificationService gamificationService, 
+            IMemoryCache cache, 
+            ILogger<UserMissionService> logger)
         {
             _context = context;
             _gamificationService = gamificationService;
+            _cache = cache;
+            _logger = logger;
         }
 
         public async Task<ServiceResult<List<UserMissionResponseDto>>> GetMyMissionsAsync(string userId, string? status)
@@ -127,7 +136,10 @@ namespace KaitiakiQuest.API.Services.Implementations
             return ServiceResult<UserMissionResponseDto>.Success(response, "Mission accepted successfully");
         }
 
-        public async Task<ServiceResult<UserMissionResponseDto>> CompleteMissionAsync(string userId, int missionId, CompleteMissionDto? dto)
+        public async Task<ServiceResult<UserMissionResponseDto>> CompleteMissionAsync(
+            string userId, 
+            int missionId, 
+            CompleteMissionDto? dto)
         {
             var userMission = await _context.UserMissions
                 .Include(um => um.EcoMission)
@@ -163,6 +175,10 @@ namespace KaitiakiQuest.API.Services.Implementations
             }
 
             await _context.SaveChangesAsync();
+
+            // Clear the cached ranking list
+            _cache.Remove("Leaderboard");
+            _logger.LogInformation("Leaderboard cache cleared after mission completion");
 
             // Create response
             var response = new UserMissionResponseDto
@@ -201,6 +217,18 @@ namespace KaitiakiQuest.API.Services.Implementations
 
         public async Task<ServiceResult<List<object>>> GetLeaderboardAsync()
         {
+            // Retrieve the leaderboard from cache.
+            const string cacheKey = "Leaderboard";
+
+            if (_cache.TryGetValue(cacheKey, out List<object>? cachedLeaderboard) && cachedLeaderboard != null)
+            {
+                _logger.LogInformation("Leaderboard returned from cache");
+                return ServiceResult<List<object>>.Success(cachedLeaderboard);
+            }
+
+            // Cache miss. Query from the database
+            _logger.LogInformation("Loeaderboard cache miss, querying database");
+            
             var leaderboard = await _context.Users
                 .Where(u => u.TotalXP > 0)
                 .OrderByDescending(u => u.TotalXP)
@@ -213,8 +241,17 @@ namespace KaitiakiQuest.API.Services.Implementations
                     u.CurrentStreak
                 })
                 .ToListAsync();
+            var result = leaderboard.Cast<object>().ToList();
 
-            return ServiceResult<List<object>>.Success(leaderboard.Cast<object>().ToList());
+            // Save to cache, valid for 5 minutes
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                .SetSlidingExpiration(TimeSpan.FromMinutes(2))
+                .SetPriority(CacheItemPriority.High);
+            _cache.Set(cacheKey, result, cacheOptions);
+
+            return ServiceResult<List<object>>.Success(result);
         }
+
     }
 }

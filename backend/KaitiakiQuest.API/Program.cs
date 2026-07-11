@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 
 // Register Controllers
 builder.Services.AddControllers();
+
 builder.Services.AddOpenApi();
 
 // Register Authentication
@@ -48,7 +50,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyForDevelopmentOnly!"))
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "IloveYouForeverUntillTheSunDisapper!"))
     };
 
     // Read the Token from the Authorization Header
@@ -75,10 +77,9 @@ builder.Services.AddSignalR();
 builder.Services.AddMemoryCache();
 
 
-
-
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

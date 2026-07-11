@@ -105,6 +105,7 @@ namespace KaitiakiQuest.API.Controllers
                     result.Message,
                     result.Errors));
             }
+            Console.WriteLine($"DTO:{dto}");
 
             // return 201 Created
             return CreatedAtAction(

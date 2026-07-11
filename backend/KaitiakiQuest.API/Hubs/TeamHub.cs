@@ -66,8 +66,17 @@ namespace KaitiakiQuest.API.Hubs
                     UpdatedAt = DateTime.UtcNow
                 });
         }
+        public override async Task OnConnectedAsync()
+        {
+            _logger.LogInformation($"User {Context.UserIdentifier} connected");
+            await base.OnConnectedAsync();
+        }
 
-
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            _logger.LogInformation($"User {Context.UserIdentifier} disconnected");
+            await base.OnDisconnectedAsync(exception);
+        }
 
     }
 }
