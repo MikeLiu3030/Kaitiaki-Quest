@@ -27,6 +27,7 @@ builder.Services.AddScoped<IEcoMissionService, EcoMissionService>();
 builder.Services.AddScoped<IUserMissionService, UserMissionService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 
 // Register Controllers
 builder.Services.AddControllers();
