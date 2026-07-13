@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e7d32" /> <stop offset="100%" stop-color="#005005" /> </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4caf50" /> <stop offset="100%" stop-color="#81c784" /> </linearGradient>
+  </defs>
+
+  <style>
+    /* CSS inside the SVG allows dark-mode tab optimization! */
+    .bg-shield { fill: url(#shieldGrad); transition: fill 0.3s ease; }
+    .leaf-core { fill: url(#leafGrad); }
+    .accent-star { fill: #ffb300; } /* Gamification Gold */
+    .border-ring { stroke: #ffffff; stroke-width: 16; fill: none; opacity: 0.9; }
+
+    @media (prefers-color-scheme: dark) {
+      /* Adjust colors slightly for dark browser tabs so it pops out beautifully */
+      .border-ring { stroke: #4caf50; opacity: 0.7; }
+    }
+  </style>
+
+  <circle cx="256" cy="256" r="240" class="bg-shield" />
+  <circle cx="256" cy="256" r="210" class="border-ring" />
+
+  <path d="M256,380 C180,380 140,300 160,220 C190,220 230,260 256,320 Z" class="leaf-core" />
+  <path d="M256,380 C332,380 372,300 352,220 C322,220 282,260 256,320 Z" class="leaf-core" />
+  <path d="M256,400 Q256,260 256,150 Q270,120 256,100 Q242,120 256,150 Z" fill="#ffffff" opacity="0.9"/>
+
+  <path d="M256,60 L266,80 L286,90 L266,100 L256,120 L246,100 L226,90 L246,80 Z" class="accent-star" />
+  <circle cx="340" cy="160" r="14" class="accent-star" />
+</svg>
