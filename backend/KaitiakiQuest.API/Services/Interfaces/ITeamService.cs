@@ -11,7 +11,7 @@ namespace KaitiakiQuest.API.Services.Interfaces
         Task<ServiceResult<TeamDetailDto>> GetTeamByIdAsync(int teamId);
 
         // Create a team
-        Task<ServiceResult<CreateTeamDto>> CreateTeamAsync(string userId, CreateTeamDto dto);
+        Task<ServiceResult<TeamDetailDto>> CreateTeamAsync(string userId, CreateTeamDto dto);
 
         // Join a team
         Task<ServiceResult<TeamDetailDto>> JoinTeamAsync(string userId, JoinTeamDto dto);
