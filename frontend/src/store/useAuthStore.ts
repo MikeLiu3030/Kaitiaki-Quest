@@ -33,10 +33,10 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true });
                 try {
                     const response = await apiClient.post<ApiResponse<AuthResponse>>('/api/auth/login', credentials);
-                    const data = response.data.data;
-                    if (data) { 
+                    const apiResponse = response.data;
+                    if (apiResponse.success && apiResponse.data) { 
+                        const data = apiResponse.data;
                         // save token and user information to local storage
-                        localStorage.setItem('token', data.token);
                         set({
                             user: {
                                 id: '',
@@ -51,8 +51,8 @@ export const useAuthStore = create<AuthState>()(
                             isAuthenticated: true,   
                             isLoading: false,                         
                         });
-                        // fetch user data
-                        await get().fetchUser();
+                    } else {
+                        throw new Error(apiResponse.message || 'Login failed');
                     }
                 } catch (error) {
                     set({ isLoading: false });
@@ -67,7 +67,6 @@ export const useAuthStore = create<AuthState>()(
                     const response = await apiClient.post<ApiResponse<AuthResponse>>('/api/auth/register', data);
                     const authData = response.data.data;
                     if (authData) {
-                        localStorage.setItem('token', authData.token);
 
                         set({
                             user: {
@@ -83,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
                             isAuthenticated: true,
                             isLoading: false,
                         });
-                        await get().fetchUser();
+
                     }
 
                 } catch (error) {
@@ -94,15 +93,12 @@ export const useAuthStore = create<AuthState>()(
 
             // logout
             logout: () => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
                 set({
                     user: null,
                     token: null,
                     isAuthenticated: false,
                     isLoading: false,
                 });
-                window.location.href = '/login';
             },
 
             // fetch user data
@@ -116,7 +112,6 @@ export const useAuthStore = create<AuthState>()(
                             user: userData,
                             isAuthenticated: true,
                         });
-                        localStorage.setItem('user', JSON.stringify(userData)); 
                     }                    
                 } catch (error) {
                     console.error("Failed to fetch user.", error);

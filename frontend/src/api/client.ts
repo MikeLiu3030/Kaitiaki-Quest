@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
 
-// Get Token from localStorage
-const getToken = () => localStorage.getItem('token');
 
 // Create Axios instance
 const apiClient = axios.create({
@@ -16,9 +14,20 @@ const apiClient = axios.create({
 // Request interceptor: Automatically add Token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // add token to headers 
+    const authStorageStr = localStorage.getItem('autho-storage');
+    if (authStorageStr) {
+      try {
+        const { state } = JSON.parse(authStorageStr);
+        if (state && state.token){
+          config.headers.Authorization = `Bearer ${state.token}`;
+        }
+      } catch (error) {
+        // handle error
+        console.error("Failed to parse auth storage", error);
+        enqueueSnackbar("Failed to parse auth storage", { variant: 'error' });
+      } 
+      
     }
     return config;
   },
@@ -36,16 +45,14 @@ apiClient.interceptors.response.use(
 
     // 401: Token expiration or invalidity, redirect to log in
     if (status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // If it is not the login page, jump to Login
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-        enqueueSnackbar('Session expired. Please log in again.', { variant: 'warning' });
-      }
+      window.location.href = '/login';
+      enqueueSnackbar('Your session has expired. Please log in again.', { variant: 'error' });
+
     } else {
       // Other error display notifications
-      enqueueSnackbar(message, { variant: 'error' });
+      if(!error.config?.silent) {
+        enqueueSnackbar(message, { variant: 'error' });
+      }
     }
 
     return Promise.reject(error);
