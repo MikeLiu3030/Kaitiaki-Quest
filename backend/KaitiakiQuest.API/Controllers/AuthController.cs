@@ -30,7 +30,7 @@ namespace KaitiakiQuest.API.Controllers
         /// User Register
         /// </summary>
         [HttpPost("register")]
-        public async Task<ActionResult<ApiResponse<OAuthTokenResponse>>> Register([FromBody] RegisterDto dto) 
+        public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Register([FromBody] RegisterDto dto) 
         {
             // 1. Check whether the user already exists
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
