@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>()(
             login: async (credentials: LoginRequest) => { 
                 set({ isLoading: true });
                 try {
-                    const response = await apiClient.post<ApiResponse<AuthResponse>>('/api/auth/login', credentials);
+                    const response = await apiClient.post<ApiResponse<AuthResponse>>('/api/auth/login', credentials, {silent: true});
                     const apiResponse = response.data;
                     if (apiResponse.success && apiResponse.data) { 
                         const data = apiResponse.data;
@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
             register: async (data: RegisterRequest) => {
                 set({ isLoading: true });
                 try {
-                    const response = await apiClient.post<ApiResponse<AuthResponse>>('/api/auth/register', data);
+                    const response = await apiClient.post<ApiResponse<AuthResponse>>('/api/auth/register', data,{ silent: true });
                     const authData = response.data.data;
                     if (authData) {
 

@@ -2,9 +2,11 @@ import { Outlet } from 'react-router-dom';
 import { Box, AppBar, Toolbar, Typography, IconButton, Container } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useThemeContext } from '../../theme/useTheme';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const MainLayout = () => {
   const { mode, toggleTheme } = useThemeContext();
+  const userName = useAuthStore((state) => state.user?.userName);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -13,6 +15,10 @@ const MainLayout = () => {
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
             Kaitiaki Quest
           </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Welcome Back {' '}
+            <strong style={{ color: '#f7f3f2', fontWeight: 700 }}>{userName}</strong>
+            </Typography>
           <IconButton color="inherit" onClick={toggleTheme}>
             {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
           </IconButton>

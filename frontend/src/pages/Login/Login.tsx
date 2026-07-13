@@ -34,9 +34,12 @@ export default function Login(){
         }
 
         try {
+            console.log("email: ", email);
+            console.log("password: ", password);
             await login({email, password});
             navigate("/dashboard");
         } catch (error:unknown) {
+
             // catch error maybe unknown, so we need Type Guard.
             if (axios.isAxiosError(error)){
                 setError(error.response?.data?.message)
@@ -88,6 +91,9 @@ export default function Login(){
                 Protecting Aotearoa, one mission at a time.
               </Typography>
             </Box>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+              Welcome Back ✨
+            </Typography>
 
 
             {error && (

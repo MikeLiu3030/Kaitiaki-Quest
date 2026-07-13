@@ -45,11 +45,17 @@ apiClient.interceptors.response.use(
 
     // 401: Token expiration or invalidity, redirect to log in
     if (status === 401) {
-      window.location.href = '/login';
-      enqueueSnackbar('Your session has expired. Please log in again.', { variant: 'error' });
+      const isLoginRequest = error.config.url?.toLowerCase().includes('login');
+      if (isLoginRequest) {
+        enqueueSnackbar(message, { variant: 'error' });
+      } else { 
+          window.location.href = '/login';
+          enqueueSnackbar('Your session has expired. Please log in again.', { variant: 'error' });
+      }  
+
 
     } else {
-      // Other error display notifications
+      // Other error display notifications(400, 500)
       if(!error.config?.silent) {
         enqueueSnackbar(message, { variant: 'error' });
       }
