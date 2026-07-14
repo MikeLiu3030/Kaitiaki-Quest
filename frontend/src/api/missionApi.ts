@@ -55,8 +55,8 @@ export const missionApi = {
     },
 
     // Cancel a mission
-    cancelMission: async (id: number) => {
-    const response = await apiClient.delete<ApiResponse<UserMission>>(`/api/usermissions/${id}/cancel`);
+    abandonMission: async (id: number) => {
+    const response = await apiClient.delete<ApiResponse<UserMission>>(`/api/usermissions/${id}`);
     return response.data;
     },
 
