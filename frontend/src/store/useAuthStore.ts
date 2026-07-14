@@ -51,6 +51,7 @@ export const useAuthStore = create<AuthState>()(
                             isAuthenticated: true,   
                             isLoading: false,                         
                         });
+                        await get().fetchUser();
                     } else {
                         throw new Error(apiResponse.message || 'Login failed');
                     }
@@ -82,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
                             isAuthenticated: true,
                             isLoading: false,
                         });
-
+                        await get().fetchUser();
                     }
 
                 } catch (error) {

@@ -34,8 +34,6 @@ export default function Login(){
         }
 
         try {
-            console.log("email: ", email);
-            console.log("password: ", password);
             await login({email, password});
             navigate("/dashboard");
         } catch (error:unknown) {

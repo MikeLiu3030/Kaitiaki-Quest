@@ -49,6 +49,7 @@ export default function Dashboard(){
             missionApi.getMyStats(),
             missionApi.getCategories(),
         ]);
+        console.log("statsRes:", statsRes.data)
         setStats(statsRes.data);
         setCategories(categoriesRes.data ?? []);
         } catch(err:unknown) { 

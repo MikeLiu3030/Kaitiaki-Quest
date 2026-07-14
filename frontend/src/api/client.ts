@@ -15,7 +15,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // add token to headers 
-    const authStorageStr = localStorage.getItem('autho-storage');
+    const authStorageStr = localStorage.getItem('auth-storage');
     if (authStorageStr) {
       try {
         const { state } = JSON.parse(authStorageStr);
