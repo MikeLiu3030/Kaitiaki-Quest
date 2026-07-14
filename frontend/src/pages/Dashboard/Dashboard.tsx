@@ -216,7 +216,7 @@ export default function Dashboard(){
             {/* Category filtering */}
             <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
                 <Typography
-                variant="body2"
+                variant="h6"
                 sx={{
                     px: 2,
                     py: 1,
@@ -236,7 +236,7 @@ export default function Dashboard(){
                 {categories.map((cat) => (
                 <Typography
                     key={cat}
-                    variant="body2"
+                    variant="h6"
                     sx={{
                     px: 2,
                     py: 1,

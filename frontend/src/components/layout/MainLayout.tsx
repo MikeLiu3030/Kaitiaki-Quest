@@ -154,8 +154,12 @@ export default function MainLayout() {
                 size="small"
                 sx={{
                   textTransform: 'none',
-                  fontSize: '0.7rem',
+                  fontSize: '0.65rem',
                   flexDirection: 'column',
+                  flex:1,
+                  minWidth: 0,
+                  px: 0.5,
+                  whiteSpace: 'nowrap',
                   gap: 0.5,
                   '&.active': {
                     color: 'secondary.main',
