@@ -20,12 +20,13 @@ interface MissionCardProps {
   isAccepted?: boolean;
 }
 
-const MissionCard: React.FC<MissionCardProps> = ({
+export default function Mission({
   mission,
   onAccept,
   isAccepting = false,
   isAccepted = false,
-}) => {
+}: MissionCardProps)
+{
   const theme = useTheme();
 
   //Color mapping of classification labels
@@ -147,7 +148,7 @@ const MissionCard: React.FC<MissionCardProps> = ({
 };
 
 // upload skeleton
-export const MissionCardSkeleton: React.FC = () => {
+export function MissionCardSkeleton() {
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Skeleton variant="rectangular" height={180} />
@@ -164,5 +165,3 @@ export const MissionCardSkeleton: React.FC = () => {
     </Card>
   );
 };
-
-export default MissionCard;
