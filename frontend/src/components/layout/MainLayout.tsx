@@ -66,13 +66,13 @@ export default function MainLayout() {
             component={NavLink}
             to="/dashboard"
             sx={{
-              flexGrow: 1,
               fontWeight: 700,
               textDecoration: 'none',
               color: 'inherit',
               display: 'flex',
               alignItems: 'center',
               gap: 1,
+              mr:4,
             }}
           >
             🌿 Kaitiaki Quest
@@ -100,6 +100,8 @@ export default function MainLayout() {
               ))}
             </Box>
           )}
+         {/* Add a placeholder Box */}
+          <Box sx={{ flexGrow: 1 }} />
 
           <IconButton color="inherit" onClick={toggleTheme}>
             {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
