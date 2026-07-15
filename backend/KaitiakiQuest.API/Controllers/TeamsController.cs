@@ -36,19 +36,23 @@ namespace KaitiakiQuest.API.Controllers
             var result = await _teamService.GetMyTeamAsync(GetUserId());
             if (!result.IsSuccess)
                 return NotFound(ApiResponse<TeamDetailDto>.Fail(result.Message));
-            return Ok(ApiResponse<TeamDetailDto>.Ok(result.Data!, result.Message))
+            return Ok(ApiResponse<TeamDetailDto>.Ok(result.Data!, result.Message));
         }
 
         ///<summary>
         /// Retrieve the details of spicified team
         /// </summary>
         [HttpGet("{teamId}")]
-        [Authorize]
         public async Task<ActionResult<ApiResponse<TeamDetailDto>>> GetTeamById(int teamId)
         {
             var result = await _teamService.GetTeamByIdAsync(teamId);
             if (!result.IsSuccess)
+            {
+                if (result.Message.Contains("Invalid"))
+                    return BadRequest(ApiResponse<TeamDetailDto>.Fail(result.Message));
                 return NotFound(ApiResponse<TeamDetailDto>.Fail(result.Message));
+            }
+                
             return Ok(ApiResponse<TeamDetailDto>.Ok(result.Data!, result.Message));
         }
 
@@ -97,6 +101,8 @@ namespace KaitiakiQuest.API.Controllers
         public async Task<ActionResult<ApiResponse<List<TeamLeaderboardDto>>>> GetTeamLeaderboard()
         {
             var result = await _teamService.GetTeamLeaderboardAsync();
+            if (!result.IsSuccess)
+                return BadRequest(ApiResponse<List<TeamLeaderboardDto>>.Fail(result.Message));
             return Ok(ApiResponse<List<TeamLeaderboardDto>>.Ok(result.Data!, result.Message));
         }
 
