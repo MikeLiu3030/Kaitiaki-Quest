@@ -196,13 +196,15 @@ namespace KaitiakiQuest.API.Services.Implementations
             };
 
             _context.Teams.Add(team);
-
-            // Add the creator to the team (Update User directly without loading the entire Team. )
-            var user = new ApplicationUser { Id = userId };  // The userId must be existed
-            _context.Users.Attach(user); // mark a user as a unchanged status. High performance
-            user.TeamId = team.Id;
             await _context.SaveChangesAsync();
 
+            // Add the creator to the team 
+            await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, team.Id));
+
+
+            // print log information
             _logger.LogInformation($"User {userId} created team {team.Name} with invite code {inviteCode}");
 
             //Clear the cached team leaderboard
@@ -242,29 +244,29 @@ namespace KaitiakiQuest.API.Services.Implementations
             if (userStatus.TeamId != null)
                 return ServiceResult<TeamDetailDto>.Failure("You are already in a team. Please leave your current team first.");
 
-            // Find the target team
-            var teamExists = await _context.Teams.AnyAsync(t => t.InviteCode == dto.InviteCode.ToUpper());
+            var inviteCodeUpper = dto.InviteCode.ToUpper();
+            // Check if the team existed
+            var targetTeamId = await _context.Teams
+                .Where(t => t.InviteCode == inviteCodeUpper)
+                .Select(t => t.Id)
+                .FirstOrDefaultAsync(); // if no team, the default value is 0.
 
-            if (!teamExists)
+            // check if the teamId == 0         
+            if (targetTeamId == 0)
                 return ServiceResult<TeamDetailDto>.Failure("Invalid invite code. Team not found.");
 
             // join the team
-            var user = new ApplicationUser { Id = userId };
-            _context.Users.Attach(user);
-            user.TeamId = await _context.Teams
-                .Where(t => t.InviteCode == dto.InviteCode.ToUpper())
-                .Select(t => t.Id)
-                .FirstOrDefaultAsync();
+            await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, targetTeamId));
 
-            await _context.SaveChangesAsync();
-
+            // print log info
             _logger.LogInformation($"User {userId} joined team via invite code {dto.InviteCode}");
 
             //Clear the cached team leaderboard
             _cache.Remove("TeamLeaderboard");
 
             return await GetMyTeamAsync(userId);
-
         }
 
         //===============================
@@ -293,12 +295,14 @@ namespace KaitiakiQuest.API.Services.Implementations
             if (userTeamInfo.TeamId == null)
                 return ServiceResult<bool>.Failure("You are not in any team");
 
+
+            var currentTeamId = userTeamInfo.TeamId.Value;
             // If it is the team leader,
             // it is necessary to check whether there are any other members
             // If it is not a team leader only set the the user's TeamId = null.
             if (userTeamInfo.IsTeamLeader)
             {
-                // Check if ther is any other members and find the first person.
+                // Check if there is any other members and find the first person.
                 var otherMemberId = await _context.Users
                     .Where(u => u.TeamId == userTeamInfo.TeamId && u.Id != userId)
                     .Select(u => u.Id)
@@ -307,24 +311,26 @@ namespace KaitiakiQuest.API.Services.Implementations
                 
                 if (otherMemberId != null)
                 {
-                    
-                    var team = new Team { Id = userTeamInfo.TeamId.Value };
-                    _context.Teams.Attach(team);
-                    team.CreatedByUserId = otherMemberId;
-                } else
+                    // If there are other members, transfer the authority of the team leader
+                    await _context.Teams
+                        .Where(t => t.Id == currentTeamId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(t => t.CreatedByUserId, otherMemberId));
+                } 
+                else
                 {
                     // Team has only teamleader, remove team
-                    var team = new Team { Id = userTeamInfo.TeamId.Value };
-                    _context.Teams.Remove(team);
+                    await _context.Teams
+                        .Where(t => t.Id == currentTeamId)
+                        .ExecuteDeleteAsync();
                 }
-            } 
+            }
 
-            var user = new ApplicationUser { Id = userId };
-            _context.Users.Attach(user);
-            user.TeamId = null;   // whoever is it, all needs to set TeamId = null
+            // Whether you are the team leader or not,
+            // remove yourself from the team (TeamId = null)
+            await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, (int?)null));
 
-            // submit changes
-            await _context.SaveChangesAsync();
 
             //Clear the cached team leaderboard
             _cache.Remove("TeamLeaderboard");
