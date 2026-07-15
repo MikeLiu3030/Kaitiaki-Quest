@@ -54,6 +54,7 @@ export interface AcceptMissionRequest {
 // complete mission request
 export interface CompleteMissionRequest {
   evidenceImageUrl?: string;
+  evidenceFile?: File;
 }
 
 //user statistics
