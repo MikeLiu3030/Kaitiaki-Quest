@@ -1,3 +1,4 @@
+using Azure.Core;
 using KaitiakiQuest.API.Data;
 using KaitiakiQuest.API.Hubs;
 using KaitiakiQuest.API.Models;
@@ -7,9 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Text;
-using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,27 @@ builder.Services.AddAuthentication(options =>
         }
     };
 
+    // Read the Tokken from the URL for SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Get token from query string of URL.
+            var accessToken = context.Request.Query["access_token"];
+
+            // get request path
+            var path = context.HttpContext.Request.Path;
+
+            // if there is a Token in URL and the request is sending Hub route
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/teamHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+
+        }
+    };
+
 });
 
 // Register SignalR
@@ -84,7 +106,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5173")
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
