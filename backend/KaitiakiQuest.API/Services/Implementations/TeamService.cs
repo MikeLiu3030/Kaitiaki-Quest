@@ -75,12 +75,6 @@ namespace KaitiakiQuest.API.Services.Implementations
                 return ServiceResult<TeamDetailDto>.Failure("User not found");
             }
 
-            // Check if the user join a team
-            if (!result.HasTeam)
-            {
-                return ServiceResult<TeamDetailDto>.Failure("You are not in a team");
-            }
-
             return ServiceResult<TeamDetailDto>.Success(result.Team!);
         }
 

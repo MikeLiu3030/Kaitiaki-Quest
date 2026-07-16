@@ -35,7 +35,8 @@ namespace KaitiakiQuest.API.Controllers
         {
             var result = await _teamService.GetMyTeamAsync(GetUserId());
             if (!result.IsSuccess)
-                return NotFound(ApiResponse<TeamDetailDto>.Fail(result.Message));
+                return BadRequest(ApiResponse<TeamDetailDto>.Fail(result.Message));
+
             return Ok(ApiResponse<TeamDetailDto>.Ok(result.Data!, result.Message));
         }
 
