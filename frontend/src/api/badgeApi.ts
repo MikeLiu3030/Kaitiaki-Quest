@@ -9,7 +9,7 @@ export const badgeApi = {
     } ,
 
     getUserBadges: async () => {
-        const response = await apiClient.get<ApiResponse<UserBadge[]>>('/api/userbadges');
+        const response = await apiClient.get<ApiResponse<UserBadge[]>>('/api/badges/my-badges');
         return response.data;
     }
 }
