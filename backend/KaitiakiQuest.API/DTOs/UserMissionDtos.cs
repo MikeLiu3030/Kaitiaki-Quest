@@ -10,6 +10,7 @@
     public class CompleteMissionDto
     {
         public string? EvidenceImageUrl { get; set; }
+        public string? ConnectionId { get; set; }
     }
 
     // Return the user task record

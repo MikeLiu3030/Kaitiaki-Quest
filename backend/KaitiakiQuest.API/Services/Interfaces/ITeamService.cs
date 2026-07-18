@@ -17,7 +17,7 @@ namespace KaitiakiQuest.API.Services.Interfaces
         Task<ServiceResult<TeamDetailDto>> JoinTeamAsync(string userId, JoinTeamDto dto);
 
         // Leave a team
-        Task<ServiceResult<bool>> LeaveTeamAsync(string userId);
+        Task<ServiceResult<bool>> LeaveTeamAsync(string userId, string connectionId);
 
         // Get a team Leaderboard
         Task<ServiceResult<List<TeamLeaderboardDto>>> GetTeamLeaderboardAsync();

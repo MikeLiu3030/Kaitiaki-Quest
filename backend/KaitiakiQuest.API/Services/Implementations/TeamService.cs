@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using KaitiakiQuest.API.Data;
-using KaitiakiQuest.API.Models;
+﻿using KaitiakiQuest.API.Data;
 using KaitiakiQuest.API.DTOs;
+using KaitiakiQuest.API.Hubs;
+using KaitiakiQuest.API.Models;
 using KaitiakiQuest.API.Services.Interfaces;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Security.Cryptography;
 
 namespace KaitiakiQuest.API.Services.Implementations
@@ -13,15 +15,18 @@ namespace KaitiakiQuest.API.Services.Implementations
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
         private readonly ILogger<TeamService> _logger;
+        private readonly IHubContext<TeamHub> _hubContext;
 
         public TeamService(
             ApplicationDbContext context, 
             IMemoryCache cache, 
-            ILogger<TeamService> logger)
+            ILogger<TeamService> logger,
+            IHubContext<TeamHub> hubContext)
         {
             _context = context;
             _cache = cache;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         ///<summary>
@@ -197,6 +202,10 @@ namespace KaitiakiQuest.API.Services.Implementations
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, team.Id));
 
+            if (!string.IsNullOrWhiteSpace(dto.ConnectionId))
+            {               
+                await _hubContext.Groups.AddToGroupAsync(dto.ConnectionId, inviteCode.Trim());
+            }
 
             // print log information
             _logger.LogInformation($"User {userId} created team {team.Name} with invite code {inviteCode}");
@@ -224,21 +233,21 @@ namespace KaitiakiQuest.API.Services.Implementations
             }
 
             // check if the user exists.
-            var userStatus = await _context.Users
+            var userInfo = await _context.Users
                 .Where(u => u.Id == userId)
-                .Select(u => new { u.TeamId })
+                .Select(u => new {u.UserName, u.TeamId })
                 .FirstOrDefaultAsync();
 
-            if (userStatus == null)
+            if (userInfo == null)
             {
                 return ServiceResult<TeamDetailDto>.Failure("User not found");
             }
 
             // Check if user has joined a team.
-            if (userStatus.TeamId != null)
+            if (userInfo.TeamId != null)
                 return ServiceResult<TeamDetailDto>.Failure("You are already in a team. Please leave your current team first.");
 
-            var inviteCodeUpper = dto.InviteCode.ToUpper();
+            var inviteCodeUpper = dto.InviteCode.ToUpper().Trim();
             // Check if the team existed
             var targetTeamId = await _context.Teams
                 .Where(t => t.InviteCode == inviteCodeUpper)
@@ -249,14 +258,33 @@ namespace KaitiakiQuest.API.Services.Implementations
             if (targetTeamId == 0)
                 return ServiceResult<TeamDetailDto>.Failure("Invalid invite code. Team not found.");
 
-            // join the team
+            // update database (add TeamId to the user)
             await _context.Users
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, targetTeamId));
 
-            // print log info
-            _logger.LogInformation($"User {userId} joined team via invite code {dto.InviteCode}");
+            //Synchronize and update the status of SignalR (ADD the user's websocket connection id to the group)
+            string roomName = inviteCodeUpper;
+            if (!string.IsNullOrEmpty(dto.ConnectionId))
+            {                
+                // SignalR join a team
+                await _hubContext.Groups.AddToGroupAsync(dto.ConnectionId, roomName);               
+            }
 
+            //Bradcast message: you join a team
+            var clientsToNotify = !string.IsNullOrEmpty(dto.ConnectionId)
+                ? _hubContext.Clients.GroupExcept(roomName, new[] { dto.ConnectionId }) // Send it to everyone in the room except me 
+                : _hubContext.Clients.Group(roomName); // If the network is disconnected and the connectionId is not sent, then send it to everyone
+
+            await clientsToNotify.SendAsync("UserJoined", new
+            {
+                UserName = userInfo.UserName,
+                Message = "Join our team",
+                JoinedAt = DateTime.UtcNow,
+            });
+
+            _logger.LogInformation($"User {userInfo.UserName} joined team via invite code {dto.InviteCode}");
+            
             //Clear the cached team leaderboard
             _cache.Remove("TeamLeaderboard");
 
@@ -266,39 +294,48 @@ namespace KaitiakiQuest.API.Services.Implementations
         //===============================
         // Leave a team
         //===============================
-        public async Task<ServiceResult<bool>> LeaveTeamAsync(string userId)
+        public async Task<ServiceResult<bool>> LeaveTeamAsync(string userId, string connectionId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return ServiceResult<bool>.Failure("User ID cannot be null or empty.");
             }
 
+
+
             // Get user's team information
-            var userTeamInfo = await _context.Users
+            var userInfo = await _context.Users
                 .Where(u => u.Id == userId)
                 .Select(u => new
-                {
+                {   u.UserName,
                     u.TeamId,
-                    IsTeamLeader = u.Team != null && u.Team.CreatedByUserId == userId
+                    IsTeamLeader = u.Team != null && u.Team.CreatedByUserId == userId,
+                    InviteCode = u.Team != null ? u.Team.InviteCode : null, // get invite code.
                 })
                 .FirstOrDefaultAsync();
 
-            if (userTeamInfo == null)
+            if (userInfo == null)
                 return ServiceResult<bool>.Failure("User not found");
 
-            if (userTeamInfo.TeamId == null)
+            if (userInfo.TeamId == null)
                 return ServiceResult<bool>.Failure("You are not in any team");
+            // Get the current Team ID
+            var currentTeamId = userInfo.TeamId.Value;
 
+            if (userInfo.InviteCode == null)
+                return ServiceResult<bool>.Failure("You are not in any team");
+            // Get the current Team invite code.
+            string inviteCode = userInfo.InviteCode;          
 
-            var currentTeamId = userTeamInfo.TeamId.Value;
+            
             // If it is the team leader,
             // it is necessary to check whether there are any other members
             // If it is not a team leader only set the the user's TeamId = null.
-            if (userTeamInfo.IsTeamLeader)
+            if (userInfo.IsTeamLeader)
             {
                 // Check if there is any other members and find the first person.
                 var otherMemberId = await _context.Users
-                    .Where(u => u.TeamId == userTeamInfo.TeamId && u.Id != userId)
+                    .Where(u => u.TeamId == userInfo.TeamId && u.Id != userId)
                     .Select(u => u.Id)
                     .FirstOrDefaultAsync();
 
@@ -325,6 +362,24 @@ namespace KaitiakiQuest.API.Services.Implementations
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, (int?)null));
 
+            string roomName = userInfo.InviteCode.Trim();
+
+            // Bradcast: user left team. 
+            var clientsToNotify = !string.IsNullOrWhiteSpace(connectionId)
+                ? _hubContext.Clients.GroupExcept(roomName, new[] { connectionId }) // Send it to everyone in the room except me 
+                : _hubContext.Clients.Group(roomName);  // If the network is disconnected and the connectionId is not sent, then send it to everyone
+
+            await clientsToNotify.SendAsync("UserLeft", new
+            {
+                UserName = userInfo.UserName,
+                Message = "left our team.",
+                LeftAt = DateTime.UtcNow,
+            });
+            // remove connection id from your signalR.
+            if (!string.IsNullOrWhiteSpace(connectionId))
+            {
+                await _hubContext.Groups.RemoveFromGroupAsync(connectionId, inviteCode.Trim());
+            }
 
             //Clear the cached team leaderboard
             _cache.Remove("TeamLeaderboard");
@@ -345,13 +400,18 @@ namespace KaitiakiQuest.API.Services.Implementations
 
             if (teamId == null)
                 return 0;
-            var team = new Team {  Id = teamId.Value };
-            _context.Teams.Attach(team);
+            var team = await _context.Teams.FindAsync(teamId.Value);
+
+            if (team == null) return 0;
+
+            // accumulate XP
             team.TotalTeamXP += earnedXP;
             team.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            _cache.Remove("TeamLeadboard");
+
+
+            _cache.Remove("TeamLeaderboard");
 
             return team.TotalTeamXP;
         }

@@ -86,9 +86,9 @@ namespace KaitiakiQuest.API.Controllers
         /// Leave the current team
         /// </summary>
         [HttpPost("leave")]
-        public async Task<ActionResult<ApiResponse<object>>> LeaveTeam()
+        public async Task<ActionResult<ApiResponse<object>>> LeaveTeam([FromBody] LeaveTeamRequestDto request)
         {
-            var result = await _teamService.LeaveTeamAsync(GetUserId());
+            var result = await _teamService.LeaveTeamAsync(GetUserId(), request.ConnectionId);
             if (!result.IsSuccess)
                 return BadRequest(ApiResponse<object>.Fail(result.Message, result.Errors));
             return Ok(ApiResponse<object>.Ok(null, result.Message));

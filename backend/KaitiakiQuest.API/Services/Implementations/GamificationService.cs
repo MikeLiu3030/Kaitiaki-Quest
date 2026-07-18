@@ -93,11 +93,10 @@ namespace KaitiakiQuest.API.Services.Implementations
         /// </summary>
         public async Task CheckAndAwardBadges(string userId)
         {
-            var user = await _context.Users
-                .Include(u => u.UserBadges)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _context.Users.FindAsync(userId);
 
             if (user == null) return;
+            await _context.Entry(user).Collection(u => u.UserBadges).LoadAsync();
 
             // Get list of badge IDs owned by the user
             var existingBadgeIds = user.UserBadges.Select(ub => ub.BadgeId).ToHashSet();
@@ -137,7 +136,6 @@ namespace KaitiakiQuest.API.Services.Implementations
             if (newlyAwardedBadges.Any())
             {
                 _context.UserBadges.AddRange(newlyAwardedBadges);
-                await _context.SaveChangesAsync();
 
             }
         }

@@ -7,12 +7,14 @@ namespace KaitiakiQuest.API.DTOs
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public string? ConnectionId { get; set; }
     }
 
     // Join a team request
     public class JoinTeamDto
     {
         public string InviteCode { get; set; } = string.Empty;
+        public string ConnectionId { get; set; } = string.Empty;
     }
 
     // team member information
@@ -49,5 +51,21 @@ namespace KaitiakiQuest.API.DTOs
         public int TotalTeamXP { get; set; }
         public int MemberCount { get; set; }
         public string? TeamLeaderName { get; set; }
+    }
+
+    public class LeaveTeamRequestDto
+    {
+        public string ConnectionId { get; set; } = string.Empty ;
+    }
+
+    public class TeamXPUpdateEventDto
+    {
+        public int TotalTeamXP { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+
+        public string CompletedBy { get; set; } = string.Empty;
+        public string MissionTitle {  get; set; } = string.Empty;
+        public int EarnedXP { get; set; }
+        public string UpdateAt { get; set; } = string.Empty;
     }
 }

@@ -13,6 +13,7 @@ using Scalar.AspNetCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
 // Register DbContext (using SQL Server)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -4,6 +4,8 @@ using KaitiakiQuest.API.Models;
 using KaitiakiQuest.API.DTOs;
 using KaitiakiQuest.API.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
+using KaitiakiQuest.API.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace KaitiakiQuest.API.Services.Implementations
 {
@@ -13,17 +15,22 @@ namespace KaitiakiQuest.API.Services.Implementations
         private readonly IGamificationService _gamificationService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserMissionService> _logger;
+        private readonly IHubContext<TeamHub> _hubContext;
 
         public UserMissionService(
             ApplicationDbContext context, 
             IGamificationService gamificationService, 
             IMemoryCache cache, 
-            ILogger<UserMissionService> logger)
+            ILogger<UserMissionService> logger,
+            IHubContext<TeamHub> hubContext
+            )
+            
         {
             _context = context;
             _gamificationService = gamificationService;
             _cache = cache;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         public async Task<ServiceResult<List<UserMissionResponseDto>>> GetMyMissionsAsync(string userId, string? status)
@@ -137,12 +144,15 @@ namespace KaitiakiQuest.API.Services.Implementations
         }
 
         public async Task<ServiceResult<UserMissionResponseDto>> CompleteMissionAsync(
-            string userId, 
-            int missionId, 
+            string userId,
+            int missionId,
             CompleteMissionDto? dto)
-        {
+        {    
+            // query EcoMission, user, team from userMission table
             var userMission = await _context.UserMissions
                 .Include(um => um.EcoMission)
+                .Include(um => um.User)                  //query user
+                    .ThenInclude(u => u.Team)            //query user
                 .FirstOrDefaultAsync(um => um.Id == missionId && um.UserId == userId);
 
             if (userMission == null)
@@ -150,37 +160,69 @@ namespace KaitiakiQuest.API.Services.Implementations
 
             if (userMission.Status != MissionStatus.Pending)
                 return ServiceResult<UserMissionResponseDto>.Failure("Mission already completed or failed");
-            //  Update task status
-            userMission.Status = MissionStatus.Completed;
-            userMission.CompletedDate = DateTime.UtcNow;
-            if (dto != null && !string.IsNullOrEmpty(dto.EvidenceImageUrl))
-                userMission.EvidenceImageUrl = dto.EvidenceImageUrl;
 
-            // Call game engine to calculate points.
-            userMission.EarnedXP = await _gamificationService.ProcessMissionCompletion(userId, userMission);
+            int newTotalTeamXP = 0;
+            string teamName = "";
+            bool hasTeam = false;
+            var user = userMission.User; 
 
-            // Update user information
-            var user = await _context.Users.FindAsync(userId);
-            if (user != null)
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                // Accumulate the total score
-                user.TotalXP += userMission.EarnedXP;
-                // Update level
-                user.Level = user.TotalXP / 100 + 1;
-                // Check Streak
-                await _gamificationService.UpdateStreak(userId);
+                // 1.update mission status
+                userMission.Status = MissionStatus.Completed;
+                userMission.CompletedDate = DateTime.UtcNow;
+                if (dto != null && !string.IsNullOrWhiteSpace(dto.EvidenceImageUrl))
+                    userMission.EvidenceImageUrl = dto.EvidenceImageUrl;
 
-                // Check and award new badges.
-                await _gamificationService.CheckAndAwardBadges(userId);
+                // 2. call game engine to caculate XP
+                userMission.EarnedXP = await _gamificationService.ProcessMissionCompletion(userId, userMission);
+
+                if (user != null)
+                {
+                    // 3. Accumulate XP, update level
+                    user.TotalXP += userMission.EarnedXP;
+                    user.Level = user.TotalXP / 100 + 1;
+
+                    // 4. Update streak and badges
+                    await _gamificationService.UpdateStreak(userId);
+                    await _gamificationService.CheckAndAwardBadges(userId);
+
+                    // 5. Update team XP
+                    if (user.TeamId != null && user.Team != null)
+                    {
+                        user.Team.TotalTeamXP += userMission.EarnedXP;
+                        user.Team.UpdatedAt = DateTime.UtcNow;
+
+                        newTotalTeamXP = user.Team.TotalTeamXP;
+                        teamName = user.Team.Name;
+                        hasTeam = true;
+                    }
+                }
+
+                // Save all changes to the database in a unified manner
+                await _context.SaveChangesAsync();
+
+                // The transaction will only be officially committed
+                // if all operations are successfully executed!
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                // Data fallback if there is any error
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"[Transaction Failed] Mission {missionId} completion failed for user {userId}.");
+                return ServiceResult<UserMissionResponseDto>.Failure("Failed to complete mission due to an internal error.");
             }
 
-            await _context.SaveChangesAsync();
-
-            // Clear the cached ranking list
+            // Remove cache
             _cache.Remove("Leaderboard");
-            _logger.LogInformation("Leaderboard cache cleared after mission completion");
+            _cache.Remove("TeamLeaderboard"); 
+            _logger.LogInformation("Leaderboard caches cleared after mission completion");
 
-            // Create response
+            // return data
             var response = new UserMissionResponseDto
             {
                 Id = userMission.Id,
@@ -194,8 +236,44 @@ namespace KaitiakiQuest.API.Services.Implementations
                 EvidenceImageUrl = userMission.EvidenceImageUrl
             };
 
+            // Bradcast
+            if (hasTeam && user != null && user.Team != null)
+            {
+                try
+                {
+                    string targetRoom = user.Team.InviteCode.Trim();
+                    _logger.LogInformation($"[SignalR Broadcast] Already send broadcast！Room: '{targetRoom}'，the current user: '{user.UserName}'");
+
+
+                    var clientsToNotify = (dto != null && !string.IsNullOrWhiteSpace(dto.ConnectionId))
+                        ? _hubContext.Clients.GroupExcept(targetRoom, new[] { dto.ConnectionId })
+                        : _hubContext.Clients.Group(targetRoom);
+
+                    await clientsToNotify.SendAsync("TeamXPUpdated", new
+                    {
+                        totalTeamXP = newTotalTeamXP,
+                        teamName = teamName,
+                        completedBy = user.UserName, 
+                        missionTitle = response.MissionTitle,
+                        earnedXP = userMission.EarnedXP,
+                        updateAt = DateTime.UtcNow.ToString("o") 
+                    });
+
+                    _logger.LogInformation("[SignalR Broadcast] The Team data has been broadcasted.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send SignalR notification for team XP update");
+                }
+            }
+            else
+            {
+                _logger.LogInformation($"[SignalR] User {user?.UserName} is not in a team, skipped team broadcast.");
+            }
+
             return ServiceResult<UserMissionResponseDto>.Success(response, "Mission completed! 🎉");
         }
+
 
         public async Task<ServiceResult<bool>> AbandonMissionAsync(string userId, int missionId)
         {
