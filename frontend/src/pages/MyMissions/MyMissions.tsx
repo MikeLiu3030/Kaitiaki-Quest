@@ -31,10 +31,12 @@ import {
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import { missionApi } from '../../api/missionApi';
-import type { UserMission } from '../../types/mission';
+import type { CompleteMissionRequest, UserMission } from '../../types/mission';
 import MissionDetailDialog from '../../components/missions/MissionDetailDialog';
 import { enqueueSnackbar } from 'notistack';
 import axios from 'axios'; 
+import { useAuthStore } from '../../store/useAuthStore';
+import { signalRService } from '../../services/signalRService';
 
 // types define
 type MissionStatus = 'Pending' | 'Completed' | 'Failed';
@@ -80,6 +82,10 @@ export default function MyMissions() {
 
   const [confirmAbandonOpen, setConfirmAbandonOpen] = useState(false);
   const [missionToAbandon, setMissionToAbandon] = useState<number | null>(null);
+  
+  // get user information
+  const fetchUser  = useAuthStore((state) => state.fetchUser);
+  
   // Load missions
   const loadMyMissions = useCallback(async () => {    
     try {
@@ -127,9 +133,14 @@ export default function MyMissions() {
   const handleCompleteMission = async (missionId: number, evidence?: string) => {
     setIsCompleting(true);
     try {
-      await missionApi.completeMission(missionId, { evidenceImageUrl: evidence });
+      const requestData: CompleteMissionRequest = {
+        evidenceImageUrl: evidence,
+        connectionId: signalRService.connectionId || undefined,
+      }
+      await missionApi.completeMission(missionId, requestData);
       enqueueSnackbar('🎉 Mission completed! XP earned!', { variant: 'success' });
       await loadMyMissions();
+      await fetchUser();
       setDialogOpen(false);
     } catch (err: unknown) {
       const errMsg = axios.isAxiosError(err) ? err.response?.data?.message : 'Failed to complete mission';
@@ -305,6 +316,7 @@ export function MissionList ({ missions, status, onView }: MissionListProps) {
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
+                  disableTypography // disabled MUI's <p> tag wrapper
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
