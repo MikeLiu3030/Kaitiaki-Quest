@@ -30,6 +30,7 @@ builder.Services.AddScoped<IUserMissionService, UserMissionService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IBadgeService, BadgeService>();
 
 // Register Controllers
 builder.Services.AddControllers();
