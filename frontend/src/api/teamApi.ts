@@ -1,6 +1,6 @@
 import apiClient from './client';
 import type { ApiResponse } from '../types/api';
-import type { TeamDetail, TeamLeaderboardEntry, CreateTeamRequest, JoinTeamRequest } from '../types/team';
+import type { TeamDetail, TeamLeaderboardEntry, CreateTeamRequest, JoinTeamRequest, LeaveTeamRequest } from '../types/team';
 
 export const teamApi = {
 
@@ -29,8 +29,8 @@ export const teamApi = {
   },
 
   // leave a team
-  leaveTeam: async () => {
-    const response = await apiClient.post<ApiResponse<null>>('/api/teams/leave');
+  leaveTeam: async (data: LeaveTeamRequest) => {
+    const response = await apiClient.post<ApiResponse<null>>('/api/teams/leave', data);
     return response.data;
   },
 
