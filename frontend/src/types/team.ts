@@ -25,11 +25,13 @@ export interface TeamDetail {
 export interface CreateTeamRequest {
   name: string;
   description?: string;
+  connectionId?: string;
 }
 
 // Join team request
 export interface JoinTeamRequest {
   inviteCode: string;
+  connectionId?: string;
 }
 
 
@@ -41,4 +43,9 @@ export interface TeamLeaderboardEntry {
   totalTeamXP: number;
   memberCount: number;
   teamLeaderName: string | null;
+}
+
+// Leave team request
+export interface LeaveTeamRequest {
+  ConnectionId: string;
 }
