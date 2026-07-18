@@ -27,7 +27,9 @@ import {
 } from '@mui/icons-material';
 import { useThemeContext } from '../../theme/useTheme';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { signalRService } from '../../services/signalRService';
+import { enqueueSnackbar } from 'notistack';
 
 export default function MainLayout() {
   const theme = useTheme();
@@ -36,6 +38,27 @@ export default function MainLayout() {
   const { user, logout } = useAuthStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+  const token = useAuthStore((state)=> state.token);
+  const isAuthenticated = useAuthStore((state)=> state.isAuthenticated);
+
+  // Monitor the changes of tokens and automatically 
+  // manage the connection and disconnection of SignalR
+  useEffect(() => {
+    // If there is a token and you have logged in, start SignalR
+    if (isAuthenticated && token) {
+      signalRService.connect(token)
+        .then(() => console.log('SignalR started globally!'))
+        .catch(err => {
+          console.error('Failed to start SignalR:', err);
+          enqueueSnackbar("The real-time service connection failed. Please refresh and try again...", { variant: 'error' });
+        });
+    } else {
+      // If there is no token (for example, the user clicks to log out), 
+      // the connection will be disconnected
+      signalRService.disconnect();
+    }
+
+  }, [token, isAuthenticated]);
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
