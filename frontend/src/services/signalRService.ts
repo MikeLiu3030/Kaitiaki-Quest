@@ -1,8 +1,21 @@
 import * as signalR from '@microsoft/signalr';
 import { enqueueSnackbar } from 'notistack';
 
+export type UserJoinedEvent ={
+    userName: string;
+    message: string;
+    joinedAt: string;
+}
+
+export type UserLeftEvent ={
+    userName: string;
+    message: string;
+    leftAt: string;
+}
+
+
 type TeamXPUpdateEvent = {
-    totalTeamXp: number;
+    totalTeamXP: number;
     teamName: string;
     completedBy: string;
     missionTitle: string;
@@ -12,51 +25,60 @@ type TeamXPUpdateEvent = {
 
 class SignalRService { 
     private connection: signalR.HubConnection | null = null;
-    private isConnected = false;
+    private isConnecting = false;
 
-    // create connection
-    async connect(token: string): Promise<void> { 
-        if (this.isConnected){
-            console.log('SignalR already connected')
+    // // Connect to the SignalR hub
+    async connect(token: string): Promise<void> {
+        if (this.isConnecting) {
+            console.log('SignalR is already connecting...');
             return;
         }
 
-        const baseUrl = import.meta.env.VITE_API_URL || 'https://localhost:7225';
 
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(`${baseUrl}/teamHub`, {
-                accessTokenFactory: () => token,
-                transport: signalR.HttpTransportType.WebSockets,
-            })
-            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-            .build();
+        if (this.connection?.state === signalR.HubConnectionState.Connected) {
+            console.log('SignalR already connected');
+            return;
+        }
 
-        // register event monitoring
-        this.connection.on('TeamXPUpdated', this.handleTeamXPUpdated);
-
-        // connection status change
-        this.connection.onreconnecting(() => { 
-            console.log('SignalR reconnecting...');
-            this.isConnected = false;
-        });
-
-        this.connection.onreconnected(() => { 
-            console.log('SignalR reconnected');
-            this.isConnected = true;
-        });
-
-        this.connection.onclose(() => { 
-            console.log('SignalR connection closed');
-            this.isConnected = false;
-        });
+        this.isConnecting = true;
 
         try {
+            // Cleanup existing connection before creating a new one
+            if (this.connection) {
+                await this.connection.stop();
+            }
+
+            const baseUrl = import.meta.env.VITE_API_URL || 'https://localhost:7225';
+
+            this.connection = new signalR.HubConnectionBuilder()
+                .withUrl(`${baseUrl}/teamHub`, {
+                    accessTokenFactory: () => token,
+                    transport: signalR.HttpTransportType.WebSockets,
+                })
+                .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+                .build();
+            
+            // Register event monitoring
+            this.connection.on('UserJoined', (data: UserJoinedEvent) => this.handleUserJoined(data));
+            this.connection.on('UserLeft', (data: UserLeftEvent) => this.handleUserLeft(data));
+            this.connection.on('TeamXPUpdated', (data: TeamXPUpdateEvent) => this.handleTeamXPUpdated(data));
+
+
+            // Connection status change handlers
+            this.connection.onreconnecting(() => console.log('SignalR reconnecting...'));
+            this.connection.onreconnected(() => console.log('SignalR reconnected'));
+            this.connection.onclose(() => console.log('SignalR connection closed'));
+
             await this.connection.start();
-            this.isConnected = true;
+            console.log('✅ The SignalR physical connection has been established, My Connection ID:', this.connection.connectionId);
             console.log('SignalR connected');
-        }catch (error) { 
+        } catch (error) {
             console.error('SignalR connection failed:', error);
-        }            
+            throw error;
+        } finally {
+            // Always release the lock regardless of success or failure
+            this.isConnecting = false;
+        }
     }
 
     // disconnect connection
@@ -64,7 +86,6 @@ class SignalRService {
         if (this.connection) {
             try {
                 await this.connection.stop();
-                this.isConnected = false;
                 console.log('SignalR disconnected');
             } catch (error) {
                 console.error('SignalR disconnection failed:', error);
@@ -72,58 +93,60 @@ class SignalRService {
         }
     }
 
-    // join team room
-    async joinTeamRoom(teamId: number): Promise<void> {
-        // check connection status
-        if (!this.isConnected || !this.connection) {
-            console.warn("SignalR not connected, cannot join team room.");
-            return;
-        }
-        try {
-            await this.connection.invoke('JoinTeamRoom', teamId.toString());
-            console.log(`Joined team room ${teamId}`);
-        } catch (error) {
-            console.error('Failed to join team room:', error);
-
-        }
-    }
-
-    // leave team room
-    async leaveTeamRoom(teamId: number): Promise<void> {
-        // check connection status
-        if (!this.isConnected || !this.connection) {
-            console.warn("SignalR not connected, cannot leave team room.");
-            return;
-        }
-        try {
-            await this.connection.invoke('LeaveTeamRoom', teamId.toString());
-            console.log(`Left team room ${teamId}`);
-        } catch (error) {
-            console.error('Failed to leave team room:', error);
-        }
-    }
 
     // Handle the XP update event of the team
     private handleTeamXPUpdated = (data: TeamXPUpdateEvent) => {
-        console.log('Team XP updated:', data); 
+        console.log('🚀 [SignalR Frontend] Received update:', data);
+        
         // display a notification
-        enqueueSnackbar(
-            `${data.completedBy} completed "${data.missionTitle}" and earned ${data.earnedXP} XP for team ${data.teamName}!`,
-            {
-                variant: 'success',
-                autoHideDuration: 5000,
-                anchorOrigin: { vertical: 'top', horizontal: 'right' },
-            }
-        );
+        if(data){
+            enqueueSnackbar(
+                `${data.completedBy} completed "${data.missionTitle}" and earned ${data.earnedXP} XP for team ${data.teamName}!`,
+                {
+                    variant: 'success',
+                }
+            );
+        };
 
         // Trigger custom events to enable the page to listen and update data
         window.dispatchEvent(new CustomEvent('teamXPUpdated', { detail: data }));
     };
 
-    //Check connection status
-    get isConnectedStatus(): boolean { 
-        return this.isConnected;
+
+    // Handle the user joined event
+    private handleUserJoined = (data: UserJoinedEvent) => {
+        console.log('🚀 [SignalR Frontend] User Joined:', data);
+        
+        enqueueSnackbar(
+            `🎉 ${data.userName} ${data.message}`, 
+            { variant: 'success' } 
+        );
+        window.dispatchEvent(new CustomEvent('teamMemberJoined', { detail: data }));
+    };
+
+
+    //Handle the user left event
+    private handleUserLeft = (data: UserLeftEvent) => {
+        console.log('🚀 [SignalR Frontend] User Left:', data);
+        
+        enqueueSnackbar(
+            `👋 ${data.userName} ${data.message}`, 
+            { variant: 'default' } 
+        );
+        window.dispatchEvent(new CustomEvent('teamMemberLeft', { detail: data }));
+    };
+
+    
+
+    // Public getter for connection state
+    get isConnected(): boolean {
+        return this.connection?.state === signalR.HubConnectionState.Connected;
     }
+
+    get connectionId(): string | null {
+        return this.connection?.connectionId || null;
+    }
+
 }
 
 export const signalRService = new SignalRService();
