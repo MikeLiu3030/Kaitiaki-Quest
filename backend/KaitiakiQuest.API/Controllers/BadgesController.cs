@@ -24,6 +24,17 @@ namespace KaitiakiQuest.API.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult<ApiResponse<List<BadgeResponseDto>>>> GetAllBadges()
+        {
+            var result = await _badgeService.GetAllBadgesAsync();
+            if (!result.IsSuccess)
+            {
+                return BadRequest(ApiResponse<List<BadgeResponseDto>>.Fail(result.Message));
+            }
+            return Ok(ApiResponse<List<BadgeResponseDto>>.Ok(result.Data!, result.Message));
+        }
+        
+        [HttpGet("my-badges")]
         public async Task<ActionResult<ApiResponse<List<UserBadgeResponseDto>>>> GetMyBadges()
         {
             var result = await _badgeService.GetUserBadgesAsync(GetUserId());

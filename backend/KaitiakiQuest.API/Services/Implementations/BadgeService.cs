@@ -34,7 +34,7 @@ namespace KaitiakiQuest.API.Services.Implementations
 
         public async Task<ServiceResult<List<UserBadgeResponseDto>>> GetUserBadgesAsync(string userId)
         {
-            if (!string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId))
             {
                 return ServiceResult<List<UserBadgeResponseDto>>.Failure("User not found!");
             }
