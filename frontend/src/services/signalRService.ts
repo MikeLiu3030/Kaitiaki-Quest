@@ -96,8 +96,7 @@ class SignalRService {
 
     // Handle the XP update event of the team
     private handleTeamXPUpdated = (data: TeamXPUpdateEvent) => {
-        console.log('🚀 [SignalR Frontend] Received update:', data);
-        
+   
         // display a notification
         if(data){
             enqueueSnackbar(
@@ -115,8 +114,6 @@ class SignalRService {
 
     // Handle the user joined event
     private handleUserJoined = (data: UserJoinedEvent) => {
-        console.log('🚀 [SignalR Frontend] User Joined:', data);
-        
         enqueueSnackbar(
             `🎉 ${data.userName} ${data.message}`, 
             { variant: 'success' } 
@@ -127,8 +124,6 @@ class SignalRService {
 
     //Handle the user left event
     private handleUserLeft = (data: UserLeftEvent) => {
-        console.log('🚀 [SignalR Frontend] User Left:', data);
-        
         enqueueSnackbar(
             `👋 ${data.userName} ${data.message}`, 
             { variant: 'default' } 
