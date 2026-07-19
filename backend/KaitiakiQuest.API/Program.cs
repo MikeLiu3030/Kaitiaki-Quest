@@ -141,11 +141,11 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await SeedData.InitializeAsync(services, userManager, roleManager);
-        Console.WriteLine("✅ Database seeded successfully!");
+        Console.WriteLine("Database seeded successfully!");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Seeding error: {ex.Message}");
+        Console.WriteLine($"Seeding error: {ex.Message}");
         throw;
     }
 }
