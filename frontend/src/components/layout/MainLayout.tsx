@@ -35,11 +35,12 @@ export default function MainLayout() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { mode, toggleTheme } = useThemeContext();
-  const { user, logout } = useAuthStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const token = useAuthStore((state)=> state.token);
-  const isAuthenticated = useAuthStore((state)=> state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const token = useAuthStore((state) => state.token);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // Monitor the changes of tokens and automatically 
   // manage the connection and disconnection of SignalR
