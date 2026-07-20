@@ -140,16 +140,16 @@ namespace KaitiakiQuest.API.Controllers
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ApiResponse<object>>> DeleteMission(int id)
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteMission(int id)
         {
             var result = await _service.DeleteMissionAsync(id);
 
             if (!result.IsSuccess)
             {
-                return NotFound(ApiResponse<object>.Fail(result.Message));
+                return NotFound(ApiResponse<bool>.Fail(result.Message));
             }
 
-            return Ok(ApiResponse<object>.Ok(null, result.Message));
+            return Ok(ApiResponse<bool>.Ok(true, result.Message));
         }
     }
 }
