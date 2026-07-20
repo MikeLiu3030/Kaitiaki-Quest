@@ -6,6 +6,8 @@ import type {
   UserStats,
   AcceptMissionRequest,
   CompleteMissionRequest,
+  CreateMissionRequest,
+  UpdateMissionRequest,
 } from '../types/mission';
 
 
@@ -65,6 +67,24 @@ export const missionApi = {
     const response = await apiClient.get<ApiResponse<Array<{ userName: string; totalXP: number; level: number; currentStreak: number }>>>(
       '/api/usermissions/leaderboard'
     );
+    return response.data;
+    },
+
+    // Update mission
+    updateMission: async (id: number, data: UpdateMissionRequest) => {
+    const response = await apiClient.put<ApiResponse<EcoMission>>(`/api/ecomissions/${id}`, data);
+    return response.data;
+    },
+
+    // Create mission
+    createMission: async (data: CreateMissionRequest) => {
+    const response = await apiClient.post<ApiResponse<EcoMission>>('/api/ecomissions', data);
+    return response.data;
+    },
+
+    // Delete mission
+    deleteMission: async (id: number) => {
+    const response = await apiClient.delete<ApiResponse<boolean>>(`/api/ecomissions/${id}`);
     return response.data;
     },
 };
