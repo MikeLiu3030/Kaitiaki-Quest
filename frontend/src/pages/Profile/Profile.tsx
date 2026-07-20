@@ -122,7 +122,7 @@ const loadData = useCallback(async () => {
 }, []);
 
   useEffect(() => {
-    loadData();
+    Promise.resolve().then(() => loadData())
   }, [loadData]);
 
   return { data, loading, error, retry: loadData };
