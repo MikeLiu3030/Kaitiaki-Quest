@@ -33,18 +33,11 @@ export interface CreateMissionRequest {
   category: string;
   imageUrl?: string;
   isDaily?: boolean;
+  isActive?: boolean;
 }
 
 // update mission
-export interface UpdateMissionRequest {
-  title: string;
-  description: string;
-  basePoints: number;
-  category: string;
-  imageUrl?: string;
-  isDaily?: boolean;
-  isActive?: boolean;
-}
+export type  UpdateMissionRequest = CreateMissionRequest;
 
 // accept mission request
 export interface AcceptMissionRequest {
