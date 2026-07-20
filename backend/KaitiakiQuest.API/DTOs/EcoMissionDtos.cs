@@ -9,6 +9,7 @@
         public string Category { get; set; } = "Recycling";
         public string? ImageUrl { get; set; }
         public bool IsDaily { get; set; } = false;
+        public bool IsActive { get; set; } = false;
     }
 
     // a request when updating task
