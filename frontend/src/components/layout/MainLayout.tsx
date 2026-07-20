@@ -24,6 +24,7 @@ import {
   EmojiEvents as EmojiEventsIcon,
   Person as PersonIcon,
   Logout as LogoutIcon,
+  ManageAccounts as AdminPanelIcon,
 } from '@mui/icons-material';
 import { useThemeContext } from '../../theme/useTheme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -41,6 +42,7 @@ export default function MainLayout() {
   const logout = useAuthStore((state) => state.logout);
   const token = useAuthStore((state) => state.token);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAdmin = user?.roles?.includes('Admin') || false;
 
   // Monitor the changes of tokens and automatically 
   // manage the connection and disconnection of SignalR
@@ -74,12 +76,19 @@ export default function MainLayout() {
   };
 
   // Navigation item
+  interface NavItems {
+    path: string;
+    label: string;
+    icon: React.ReactNode;
+  }
+
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
     { path: '/my-missions', label: 'My Missions', icon: <TaskIcon /> },
     { path: '/teams', label: 'Teams', icon: <GroupIcon /> },
     { path: '/leaderboard', label: 'Leaderboard', icon: <EmojiEventsIcon /> },
-  ];
+    isAdmin && {path: '/admin', label: 'Admin', icon: <AdminPanelIcon />},
+  ].filter(Boolean) as NavItems[];
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

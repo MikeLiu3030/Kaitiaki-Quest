@@ -8,6 +8,7 @@ import Leaderboard from '../pages/Leaderboard/Leaderboard'
 import Profile from '../pages/Profile/Profile'
 import MainLayout from '../components/layout/MainLayout';
 import { ProtectedRoute } from '../components/common/ProtectedRoute';
+import AdminPanel from '../pages/Admin/AdminPanel';
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
         path: 'profile',
         element: <Profile />,
       },
+      {
+        path: 'admin',
+        element: <AdminPanel />
+      }
     ],
   },
   {
