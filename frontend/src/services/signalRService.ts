@@ -70,7 +70,6 @@ class SignalRService {
             this.connection.onclose(() => console.log('SignalR connection closed'));
 
             await this.connection.start();
-            console.log('✅ The SignalR physical connection has been established, My Connection ID:', this.connection.connectionId);
             console.log('SignalR connected');
         } catch (error) {
             console.error('SignalR connection failed:', error);
