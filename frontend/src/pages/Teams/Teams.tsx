@@ -359,7 +359,11 @@ useEffect(() => {
 
   // Rendering member list
   const renderMembers = (members: TeamMember[]) => (
-    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+    <Stack 
+      direction={{xs:'column', sm:'row'}} 
+      spacing={1} 
+      sx={{xs:'nowrap', sm:'wrap' }}
+    >
       {members.map((member) => (
         <Chip
           key={member.userId}
@@ -377,6 +381,9 @@ useEffect(() => {
           }
           variant="outlined"
           size="medium"
+          sx={{width: {xs:'100%', sm:'auto'},
+               justifyContent: 'flex-start',
+             }}
         />
       ))}
     </Stack>
