@@ -79,10 +79,6 @@ namespace KaitiakiQuest.API.Services.Implementations
             {
                 return ServiceResult<TeamDetailDto>.Failure("User not found");
             }
-            if (!result.HasTeam || result.Team == null)
-            {
-                return ServiceResult<TeamDetailDto>.Failure("You are not in a team");
-            }
 
             return ServiceResult<TeamDetailDto>.Success(result.Team!);
         }
