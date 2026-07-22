@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="KaitiakiQuest.API.Test/KaitiakiQuest.API.Test.csproj" Id="afabb702-c0cb-4f84-90ae-9a672795fa38" />
   <Project Path="KaitiakiQuest.API/KaitiakiQuest.API.csproj" />
 </Solution>

@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using KaitiakiQuest.API.Data;
+﻿using KaitiakiQuest.API.Data;
+using KaitiakiQuest.API.DTOs;
 using KaitiakiQuest.API.Models;
 using KaitiakiQuest.API.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace KaitiakiQuest.API.Services.Implementations
 {
@@ -152,7 +153,7 @@ namespace KaitiakiQuest.API.Services.Implementations
         /// <summary>
         /// Get progress for the next badge (for frontend display)
         /// </summary>
-        public async Task<object?> GetNextBadgeProgress(string userId)
+        public async Task<BadgeProgressDto?> GetNextBadgeProgress(string userId)
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return null;
@@ -168,13 +169,13 @@ namespace KaitiakiQuest.API.Services.Implementations
                 .FirstOrDefaultAsync();
 
             if (nextBadge == null)
-                return new { HasNextBadge = false };
+                return new BadgeProgressDto { HasNextBadge = false };
 
-            return new
+            return new BadgeProgressDto
             {
                 HasNextBadge = true,
-                nextBadge.Name,
-                nextBadge.UnlockXP,
+                Name = nextBadge.Name,
+                UnlockXP = nextBadge.UnlockXP,
                 CurrentXP = user.TotalXP,
                 Progress = Math.Min(100, (double)user.TotalXP / nextBadge.UnlockXP * 100)
             };

@@ -140,6 +140,8 @@ namespace KaitiakiQuest.API.Services.Implementations
             var mission = await _context.EcoMissions.FindAsync(id);
             if (mission == null)
                 return ServiceResult<bool>.Failure("Mission not found");
+            if (!mission.IsActive)
+                return ServiceResult<bool>.Failure("Mission is already inactive"); ;
 
             mission.IsActive = false;
             mission.UpdatedAt = DateTime.UtcNow;

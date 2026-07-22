@@ -198,9 +198,12 @@ namespace KaitiakiQuest.API.Services.Implementations
             await _context.SaveChangesAsync();
 
             // Add the creator to the team 
-            await _context.Users
-                .Where(u => u.Id == userId)
-                .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, team.Id));
+            var userToUpdate = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userToUpdate != null)
+            {
+                userToUpdate.TeamId = team.Id;
+                await _context.SaveChangesAsync();
+            }
 
             if (!string.IsNullOrWhiteSpace(dto.ConnectionId))
             {               
@@ -259,9 +262,12 @@ namespace KaitiakiQuest.API.Services.Implementations
                 return ServiceResult<TeamDetailDto>.Failure("Invalid invite code. Team not found.");
 
             // update database (add TeamId to the user)
-            await _context.Users
-                .Where(u => u.Id == userId)
-                .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, targetTeamId));
+            var userToJoin = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userToJoin != null)
+            {
+                userToJoin.TeamId = targetTeamId;
+                await _context.SaveChangesAsync();
+            }
 
             //Synchronize and update the status of SignalR (ADD the user's websocket connection id to the group)
             string roomName = inviteCodeUpper;
@@ -343,24 +349,34 @@ namespace KaitiakiQuest.API.Services.Implementations
                 if (otherMemberId != null)
                 {
                     // If there are other members, transfer the authority of the team leader
-                    await _context.Teams
-                        .Where(t => t.Id == currentTeamId)
-                        .ExecuteUpdateAsync(s => s.SetProperty(t => t.CreatedByUserId, otherMemberId));
+                    var teamToTransfer = await _context.Teams.FirstOrDefaultAsync(t => t.Id == currentTeamId);
+                    if (teamToTransfer != null)
+                    {
+                        teamToTransfer.CreatedByUserId = otherMemberId;
+                        await _context.SaveChangesAsync();
+                    }
                 } 
                 else
                 {
                     // Team has only teamleader, remove team
-                    await _context.Teams
-                        .Where(t => t.Id == currentTeamId)
-                        .ExecuteDeleteAsync();
+                    var teamToDelete = await _context.Teams.FirstOrDefaultAsync(t => t.Id == currentTeamId);
+                    if (teamToDelete != null)
+                    {
+                        _context.Teams.Remove(teamToDelete);
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
 
             // Whether you are the team leader or not,
             // remove yourself from the team (TeamId = null)
-            await _context.Users
-                .Where(u => u.Id == userId)
-                .ExecuteUpdateAsync(s => s.SetProperty(u => u.TeamId, (int?)null));
+            var userToLeave = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userToLeave != null)
+            {
+                userToLeave.TeamId = null;
+                await _context.SaveChangesAsync();
+            }
+
 
             string roomName = userInfo.InviteCode.Trim();
 

@@ -133,21 +133,25 @@ app.MapControllers();
 app.MapHub<TeamHub>("/teamHub"); // Add the SignalR Hub mapping
 
 // Add seed data
-using (var scope = app.Services.CreateScope())
+if (!builder.Environment.IsEnvironment("Testing"))
 {
-    var services = scope.ServiceProvider;
-    try
+    using (var scope = app.Services.CreateScope())
     {
-        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        await SeedData.InitializeAsync(services, userManager, roleManager);
-        Console.WriteLine("Database seeded successfully!");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Seeding error: {ex.Message}");
-        throw;
+        var services = scope.ServiceProvider;
+        try
+        {
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            await SeedData.InitializeAsync(services, userManager, roleManager);
+            Console.WriteLine("Database seeded successfully!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Seeding error: {ex.Message}");
+            throw;
+        }
     }
 }
+
 
 app.Run();
