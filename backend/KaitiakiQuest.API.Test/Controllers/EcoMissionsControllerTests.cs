@@ -12,15 +12,15 @@ using Xunit;
 
 namespace KaitiakiQuest.API.Tests.Controllers
 {
-    public class EcoMissionsControllerTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+    public class EcoMissionsControllerTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
     {
         private readonly HttpClient _client;
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly CustomWebApplicationFactory _factory;
         private readonly IServiceScope _scope;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public EcoMissionsControllerTests(WebApplicationFactory<Program> factory)
+        public EcoMissionsControllerTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
             _client = _factory.CreateClient();
