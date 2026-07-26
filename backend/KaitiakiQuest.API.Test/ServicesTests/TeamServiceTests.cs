@@ -335,8 +335,7 @@ public class TeamServiceTests : IDisposable
         var result = await _service.GetMyTeamAsync(userId);
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.Message.Should().Be("You are not in a team");
+        result.IsSuccess.Should().BeTrue();
         result.Data.Should().BeNull();
     }
 

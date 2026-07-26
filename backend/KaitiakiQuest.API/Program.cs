@@ -1,4 +1,3 @@
-using Azure.Core;
 using KaitiakiQuest.API.Data;
 using KaitiakiQuest.API.Hubs;
 using KaitiakiQuest.API.Models;
@@ -8,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Text;
 using System.Runtime.CompilerServices;
@@ -27,7 +25,7 @@ builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 if (builder.Environment.IsEnvironment("Testing"))
 {
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseInMemoryDatabase("TestDb_{Guid.NewGuid()}"));
+        options.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}"));
 }
 else
 {
@@ -54,6 +52,13 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Register Authentication
+string jwtKey = builder.Configuration["Jwt:Key"] 
+    ?? throw new InvalidOperationException("JWT Key is not configured.");
+string jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException("JWT Issuer is not configured.");
+string jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException("JWT Audience is not configured.");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -69,24 +74,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "IloveYouForeverUntillTheSunDisapper!"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 
-    // Read the Token from the Authorization Header
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                context.Token = token;
-            }
-            return Task.CompletedTask;
-        }
-    };
 
     // Read the Tokken from the URL for SignalR
     options.Events = new JwtBearerEvents
@@ -118,11 +108,14 @@ builder.Services.AddSignalR();
 builder.Services.AddMemoryCache();
 
 // Add CORS service
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                     ?? throw new InvalidOperationException("CORS configuration is missing or empty. Please configure 'Cors:AllowedOrigins' in appsettings.json.");
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
@@ -130,9 +123,9 @@ builder.Services.AddCors(options =>
 });
 
 
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -140,8 +133,14 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseCors("AllowSpecificOrigin");
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/error");
+    app.UseHsts();
+}
+
 app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication(); 
 app.UseAuthorization(); 
 

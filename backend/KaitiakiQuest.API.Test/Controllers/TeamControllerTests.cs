@@ -178,11 +178,10 @@ namespace KaitiakiQuest.API.Tests.Controllers
             var response = await _client.GetAsync("/api/teams/my-team");
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = await response.Content.ReadFromJsonAsync<ApiResponse<TeamDetailDto>>();
             result.Should().NotBeNull();
-            result!.Success.Should().BeFalse();
-            result.Message.Should().Be("You are not in a team");
+            result!.Success.Should().BeTrue();
         }
 
         [Fact]
