@@ -10,6 +10,8 @@ const apiClient = axios.create({
   },
   timeout: 30000,
 });
+console.log(import.meta.env.VITE_API_BASE_URL);
+
 
 // Request interceptor: Automatically add Token
 apiClient.interceptors.request.use(

@@ -48,7 +48,9 @@ class SignalRService {
                 await this.connection.stop();
             }
 
-            const baseUrl = import.meta.env.VITE_API_URL || 'https://localhost:7225';
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://kaitiakiquest-api-e2a4f5fgb7fue0cv.australiasoutheast-01.azurewebsites.net';
+            console.log('baseUrl:', baseUrl);
+            console.log('VITE_API_URL', import.meta.env.VITE_API_BASE_URL);
 
             this.connection = new signalR.HubConnectionBuilder()
                 .withUrl(`${baseUrl}/teamHub`, {

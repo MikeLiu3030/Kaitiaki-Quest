@@ -60,7 +60,7 @@ describe('apiClient', () => {
   // ============================================================
   describe('Basic', () => {
     it('he baseURL in the environment variable should be used', () => {
-      expect(apiClient.defaults.baseURL).toBe(import.meta.env.VITE_API_BASE_URL || 'https://localhost:7225');
+      expect(apiClient.defaults.baseURL).toBe(import.meta.env.VITE_API_BASE_URL || 'https://kaitiakiquest-api-e2a4f5fgb7fue0cv.australiasoutheast-01.azurewebsites.net');
     });
 
     it('Should setup Content-Type 为 application/json', () => {
