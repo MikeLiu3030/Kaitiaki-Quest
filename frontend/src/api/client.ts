@@ -4,7 +4,7 @@ import { enqueueSnackbar } from 'notistack';
 
 // Create Axios instance
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://localhost:7225',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://kaitiakiquest-api-e2a4f5fgb7fue0cv.australiasoutheast-01.azurewebsites.net',
   headers: {
     'Content-Type': 'application/json',
   },
