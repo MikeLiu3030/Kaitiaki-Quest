@@ -29,8 +29,10 @@ if (builder.Environment.IsEnvironment("Testing"))
 }
 else
 {
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connectiong string 'DefaultConnection' not found");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(connectionString));
 }
 
 // Register Identity（using ApplicationUser adn IdentityRole）
@@ -127,11 +129,10 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+
+app.MapOpenApi();
+app.MapScalarApiReference();
+
 
 if (!app.Environment.IsDevelopment())
 {
@@ -163,10 +164,8 @@ if (!builder.Environment.IsEnvironment("Testing"))
         catch (Exception ex)
         {
             Console.WriteLine($"Seeding error: {ex.Message}");
-            throw;
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
         }
     }
 }
-
-
 app.Run();
