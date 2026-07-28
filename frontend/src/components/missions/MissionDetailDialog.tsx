@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+
 import {
   Dialog,
   DialogTitle,
@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import type { UserMission } from '../../types/mission';
+import { useState } from 'react';
 
 interface MissionDetailDialogProps {
   open: boolean;
@@ -163,3 +164,5 @@ export default function MissionDetailDialog ({
     </Dialog>
   );
 };
+
+
