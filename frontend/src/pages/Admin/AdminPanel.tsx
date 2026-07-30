@@ -12,8 +12,6 @@ import {
   DialogActions,
   List,
   ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Chip,
   CircularProgress,
@@ -259,20 +257,19 @@ export default function AdminPanel()  {
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'stretch', // 让子元素宽度占满
+                    alignItems: 'stretch', 
                     py: 2,
                     px: 2,
                     opacity: mission.isActive ? 1 : 0.5,
                     '&:hover': { bgcolor: 'action.hover' },
                   }}
                 >
-                  {/* 1. 顶层：标题 + 操作按钮 */}
+                  {/* 1. top level：title + button */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
                       {mission.title}
                     </Typography>
                     
-                    {/* 操作按钮组：固定在右上角，不会与内容重叠 */}
                     <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
                       <IconButton
                         size="small"
@@ -292,7 +289,7 @@ export default function AdminPanel()  {
                     </Box>
                   </Box>
 
-                  {/* 2. 中层：标签组 (支持换行) */}
+                  {/* 2. middle level：label group */}
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mb: 1.5 }}>
                     <Chip
                       label={mission.category}
@@ -307,7 +304,7 @@ export default function AdminPanel()  {
                     )}
                   </Box>
 
-                  {/* 3. 底层：元数据信息 */}
+                  {/* 3. button level：meta data  */}
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                     <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                       💚 {mission.basePoints} XP
@@ -318,7 +315,7 @@ export default function AdminPanel()  {
                   </Box>
                 </ListItem>
               ))}
-</List>
+            </List>
           )}
         </CardContent>
       </Card>
