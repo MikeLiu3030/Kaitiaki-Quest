@@ -69,9 +69,8 @@ namespace KaitiakiQuest.API.Data
             }
 
             // 5. Seed or Update EcoMissions
-            // 5. Seed or Update EcoMissions
             var missionsToSeed = new[]
-             {
+            {
                 // ===== (Recycling) =====
                 new EcoMission
                 {
@@ -79,7 +78,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Collect and properly sort 10 plastic bottles for recycling. Upload a photo as proof.",
                     BasePoints = 30,
                     Category = "Recycling",
-                    ImageUrl = "https://images.unsplash.com/photo-1532996128854-2c5b7d5aee6d?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80",
                     IsDaily = true
                 },
                 new EcoMission
@@ -88,7 +87,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Collect and recycle 20 glass jars. Glass can be recycled infinitely!",
                     BasePoints = 40,
                     Category = "Recycling",
-                    ImageUrl = "https://images.unsplash.com/photo-1585515321534-0841b24b4ea2?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -97,7 +96,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Separate your waste into recycling, compost, and landfill for 7 consecutive days.",
                     BasePoints = 60,
                     Category = "Recycling",
-                    ImageUrl = "https://images.unsplash.com/photo-1604187351574-c75ca79f2f0b?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -106,7 +105,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Use a reusable cloth bag for shopping and refuse plastic bags.",
                     BasePoints = 15,
                     Category = "Recycling",
-                    ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -115,7 +114,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Collect and recycle 20 aluminium cans. Aluminium can be recycled forever!",
                     BasePoints = 35,
                     Category = "Recycling",
-                    ImageUrl = "https://images.unsplash.com/photo-1564554686612-ff3992d3b268?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -124,7 +123,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Transform old t-shirts into reusable shopping bags. Zero waste!",
                     BasePoints = 45,
                     Category = "Recycling",
-                    ImageUrl = "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
 
@@ -135,7 +134,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Choose to walk or bike instead of driving for at least 2 km.",
                     BasePoints = 25,
                     Category = "Transport",
-                    ImageUrl = "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -144,7 +143,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Choose to walk or bike instead of driving for at least 5 km.",
                     BasePoints = 40,
                     Category = "Transport",
-                    ImageUrl = "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -153,7 +152,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Use public transport (bus, train, ferry) for 5 consecutive days instead of driving.",
                     BasePoints = 50,
                     Category = "Transport",
-                    ImageUrl = "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -162,7 +161,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Use an e-scooter or electric bike for your daily commute for 7 days.",
                     BasePoints = 55,
                     Category = "Transport",
-                    ImageUrl = "https://images.unsplash.com/photo-1590362895031-4bb7c3f2c25a?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -171,7 +170,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Arrange a carpool and share a ride with at least one other person.",
                     BasePoints = 30,
                     Category = "Transport",
-                    ImageUrl = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
 
@@ -182,7 +181,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Turn off all unnecessary lights and electronics for 1 hour.",
                     BasePoints = 20,
                     Category = "Energy",
-                    ImageUrl = "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=600&q=80",
                     IsDaily = true
                 },
                 new EcoMission
@@ -191,7 +190,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Turn off all unnecessary lights and electronics for 3 hours.",
                     BasePoints = 40,
                     Category = "Energy",
-                    ImageUrl = "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -200,7 +199,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Replace 5 traditional light bulbs with energy-efficient LEDs in your home.",
                     BasePoints = 35,
                     Category = "Energy",
-                    ImageUrl = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1550985616-10810253b84d?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -209,7 +208,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Unplug all electronics that are not in use for 24 hours (phone chargers, TVs, etc.).",
                     BasePoints = 25,
                     Category = "Energy",
-                    ImageUrl = "https://images.unsplash.com/photo-1590496793929-7e2e5b2f0c6c?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -218,7 +217,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Don't turn on any lights during daylight hours. Use natural light instead.",
                     BasePoints = 30,
                     Category = "Energy",
-                    ImageUrl = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
 
@@ -229,7 +228,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Plant a native tree or plant to contribute to New Zealand's green ecosystem.",
                     BasePoints = 50,
                     Category = "Planting",
-                    ImageUrl = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -238,7 +237,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Plant a small herb garden with basil, mint, or parsley in your kitchen or balcony.",
                     BasePoints = 35,
                     Category = "Planting",
-                    ImageUrl = "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -247,7 +246,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Plant 5 native trees in your local community area.",
                     BasePoints = 80,
                     Category = "Planting",
-                    ImageUrl = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -256,7 +255,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Set up a composting system for your kitchen waste. Reduce landfill waste!",
                     BasePoints = 45,
                     Category = "Planting",
-                    ImageUrl = "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
 
@@ -267,7 +266,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Take a shower of 5 minutes or less. Save water and energy!",
                     BasePoints = 20,
                     Category = "Water",
-                    ImageUrl = "https://images.unsplash.com/photo-1541040998045-7cb75fcb141a?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
                     IsDaily = true
                 },
                 new EcoMission
@@ -276,7 +275,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Fix a dripping tap. A leaking tap can waste up to 15 litres of water per day!",
                     BasePoints = 30,
                     Category = "Water",
-                    ImageUrl = "https://images.unsplash.com/photo-1558618666-fcd25c85f94a?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1520038410233-7141be7e6f97?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -285,7 +284,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Install a water-efficient shower head to reduce water consumption.",
                     BasePoints = 40,
                     Category = "Water",
-                    ImageUrl = "https://images.unsplash.com/photo-1558618666-fcd25c85f94a?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -294,7 +293,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Set up a rainwater collection system and use it to water your plants.",
                     BasePoints = 35,
                     Category = "Water",
-                    ImageUrl = "https://images.unsplash.com/photo-1563299796-17596ed6b017?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
 
@@ -305,7 +304,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Watch a documentary about climate change and share one key insight.",
                     BasePoints = 25,
                     Category = "Education",
-                    ImageUrl = "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -314,7 +313,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Read an article about conservation and New Zealand's native wildlife.",
                     BasePoints = 20,
                     Category = "Education",
-                    ImageUrl = "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -323,7 +322,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Share recycling knowledge with a friend, family member, or colleague.",
                     BasePoints = 15,
                     Category = "Education",
-                    ImageUrl = "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -332,7 +331,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Learn and use 5 Māori words related to nature and the environment.",
                     BasePoints = 15,
                     Category = "Education",
-                    ImageUrl = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
 
@@ -343,7 +342,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Participate in a local beach or park clean-up event in your community.",
                     BasePoints = 60,
                     Category = "Community",
-                    ImageUrl = "https://images.unsplash.com/photo-1523741543316-beb7f4f7d4f4?w=400", 
+                    ImageUrl = "https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -352,7 +351,7 @@ namespace KaitiakiQuest.API.Data
                     Description = "Organize a local clean-up event and invite friends and neighbours to join.",
                     BasePoints = 80,
                     Category = "Community",
-                    ImageUrl = "https://images.unsplash.com/photo-1523741543316-beb7f4f7d4f4?w=400",
+                    ImageUrl = "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 },
                 new EcoMission
@@ -361,10 +360,11 @@ namespace KaitiakiQuest.API.Data
                     Description = "Adopt a street or park in your area and keep it clean for a month.",
                     BasePoints = 70,
                     Category = "Community",
-                    ImageUrl = "https://images.unsplash.com/photo-1449157291148-3d40066a5b4c?w=400", // 街道
+                    ImageUrl = "https://images.unsplash.com/photo-1449157291148-3d40066a5b4c?auto=format&fit=crop&w=600&q=80",
                     IsDaily = false
                 }
             };
+
 
             // Iterate through each mission to check if it exists
             foreach (var missionData in missionsToSeed)
