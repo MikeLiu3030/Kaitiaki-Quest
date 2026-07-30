@@ -20,6 +20,7 @@ import {
   Switch,
   FormControlLabel,
   MenuItem,
+  Grid,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -33,7 +34,7 @@ import type { EcoMission, CreateMissionRequest, UpdateMissionRequest } from '../
 import { enqueueSnackbar } from 'notistack';
 import getApiErrorMsg from '../../utils/handleApiErrorMsg';
 
-// 任务分类选项
+// category mission choices
 const CATEGORIES = ['Recycling', 'Energy', 'Transport', 'Planting', 'Water', 'Education', 'Community'];
 
 export default function AdminPanel()  {
@@ -203,35 +204,41 @@ export default function AdminPanel()  {
   return (
     <Box>
       {/* page title */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            🛠️ Admin Panel
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Manage missions and oversee the Kaitiaki Quest ecosystem.
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            onClick={loadMissions}
-            startIcon={<RefreshIcon />}
-            disabled={isLoading}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenCreateDialog}
-            sx={{ fontWeight: 600 }}
-          >
-            New Mission
-          </Button>
-        </Box>
-      </Box>
+      <Box sx={{ mb: 4 }}>
+        <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }} spacing={2}>
+          {/* lift: title */}
+          <Grid  size={{ xs: 12, md: 6 }} >
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              🛠️ Admin Panel
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Manage missions and oversee the Kaitiaki Quest ecosystem.
+            </Typography>
+          </Grid>
 
+          {/* right: buttons */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Box sx={{ display: 'flex', gap: 1, justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+              <Button
+                variant="outlined"
+                onClick={loadMissions}
+                startIcon={<RefreshIcon />}
+                disabled={isLoading}
+              >
+                Refresh
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleOpenCreateDialog}
+                sx={{ fontWeight: 600 }}
+              >
+                New Mission
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
       {/* mission list */}
       <Card>
         <CardContent>
@@ -244,68 +251,74 @@ export default function AdminPanel()  {
               No missions found. Create your first mission! 🚀
             </Typography>
           ) : (
-            <List>
+            <List disablePadding>
               {missions.map((mission) => (
                 <ListItem
                   key={mission.id}
                   divider
                   sx={{
-                    '&:hover': { bgcolor: 'action.hover' },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'stretch', // 让子元素宽度占满
+                    py: 2,
+                    px: 2,
                     opacity: mission.isActive ? 1 : 0.5,
+                    '&:hover': { bgcolor: 'action.hover' },
                   }}
                 >
-                  <ListItemText
-                    disableTypography
-                    primary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {mission.title}
-                        </Typography>
-                        <Chip
-                          label={mission.category}
-                          size="small"
-                          color="primary"
-                        />
-                        {!mission.isActive && (
-                          <Chip label="Inactive" size="small" color="error" />
-                        )}
-                        {mission.isDaily && (
-                          <Chip label="🔥 Daily" size="small" color="warning" />
-                        )}
-                      </Box>
-                    }
-                    secondary={
-                      <Box sx={{ display: 'flex', gap: 2, mt: 0.5 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          💚 {mission.basePoints} XP
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Created: {new Date(mission.createdAt).toLocaleDateString()}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      onClick={() => handleOpenEditDialog(mission)}
-                      sx={{ mr: 1 }}
-                      disabled={isDeleting === mission.id}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      edge="end"
-                      onClick={() => handleDeleteClick(mission.id)}
-                      color="error"
-                      disabled={isDeleting === mission.id}
-                    >
-                      {isDeleting === mission.id ? <CircularProgress size={24} /> : <DeleteIcon />}
-                    </IconButton>
-                  </ListItemSecondaryAction>
+                  {/* 1. 顶层：标题 + 操作按钮 */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
+                      {mission.title}
+                    </Typography>
+                    
+                    {/* 操作按钮组：固定在右上角，不会与内容重叠 */}
+                    <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenEditDialog(mission)}
+                        disabled={isDeleting === mission.id}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteClick(mission.id)}
+                        color="error"
+                        disabled={isDeleting === mission.id}
+                      >
+                        {isDeleting === mission.id ? <CircularProgress size={18} /> : <DeleteIcon fontSize="small" />}
+                      </IconButton>
+                    </Box>
+                  </Box>
+
+                  {/* 2. 中层：标签组 (支持换行) */}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mb: 1.5 }}>
+                    <Chip
+                      label={mission.category}
+                      size="small"
+                      color="primary"
+                    />
+                    {!mission.isActive && (
+                      <Chip label="Inactive" size="small" color="error" />
+                    )}
+                    {mission.isDaily && (
+                      <Chip label="🔥 Daily" size="small" color="warning" />
+                    )}
+                  </Box>
+
+                  {/* 3. 底层：元数据信息 */}
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      💚 {mission.basePoints} XP
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Created: {new Date(mission.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
                 </ListItem>
               ))}
-            </List>
+</List>
           )}
         </CardContent>
       </Card>
