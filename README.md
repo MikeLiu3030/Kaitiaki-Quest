@@ -3,6 +3,12 @@
 ## Project Link
 <https://nice-pebble-0499bf500.7.azurestaticapps.net>
 
+Account Details:
+**User:** admin@kaitiaki.com 
+**Password:** Admin123!
+**User:** user@kaitiaki.com 
+**Password:** User123!
+
 ## 📌 Project Overview
 
 **Kaitiaki Quest** is a **gamified task management application** built around New Zealand's conservation spirit. Users earn experience points (XP), unlock badges, maintain streaks, and compete with friends by completing daily eco-friendly missions such as recycling, energy saving, walking, and tree planting.
