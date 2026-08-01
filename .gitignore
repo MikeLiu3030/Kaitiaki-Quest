@@ -16,4 +16,4 @@ frontend/.env.local
 # IDE
 .vs
 .idea/
-
+azure-database.txt
